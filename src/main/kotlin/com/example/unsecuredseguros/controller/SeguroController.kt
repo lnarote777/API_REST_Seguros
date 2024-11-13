@@ -53,6 +53,7 @@ class SeguroController {
     fun deleteSeguroById(
         @PathVariable id: String
     ): Seguro?{
+
         if (id.isEmpty()){
             return null
         }
