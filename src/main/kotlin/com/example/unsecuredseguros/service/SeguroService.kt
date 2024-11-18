@@ -16,20 +16,20 @@ class SeguroService {
 
     fun insertSeguro(seguro: Seguro): Seguro? {
         if (seguro.nif.isEmpty() || seguro.nif.length > 9 || seguro.nif.length < 9 || seguro.nif.substring(0, 8).all{it.isDigit()}) {
-            return null
-        } else if (!validarNif(seguro.nif)) {return null}
+            throw ValidationException("El NIF debe estar compuesto por 8 digitos y 1 letra.")
+        } else if (!validarNif(seguro.nif)) {throw ValidationException("NIF invalido.")}
 
-        if (seguro.nombre.isEmpty() || seguro.ape1.isEmpty()) return null
+        if (seguro.nombre.isEmpty() || seguro.ape1.isEmpty()) throw ValidationException("El nombre y el apellido no pueden estar vacíos.")
 
         if (seguro.edad < 0){
-            return null
+            throw ValidationException("")
         }else if (seguro.edad in 0..17){
-            return null //debe mostrar un mensaje -> No es posible ser menor de edad para hacer un seguro
+            throw ValidationException("No es posible ser menor de edad para hacer un seguro")
         }
 
-        if (seguro.sexo.isEmpty()) return null
+        if (seguro.sexo.isEmpty()) throw ValidationException("El campo sexo no debe estar vacío.")
 
-        if (seguro.numHijos < 0) return null
+        if (seguro.numHijos < 0) throw ValidationException("Los hijos no pueden ser negativos.")
 
         if (!seguro.casado) seguro.numHijos = 0
 
@@ -57,7 +57,14 @@ class SeguroService {
     }
 
     fun getAll(): List<Seguro> {
-        return seguroRepository.findAll()
+
+        val list = seguroRepository.findAll()
+
+        if (list.isEmpty()){
+            throw NotFoundException("No se encontró ningun seguro.")
+        }else{
+            return list
+        }
     }
 
     fun updateSeguro(nuevoSeguro: Seguro): Seguro? {
@@ -74,7 +81,7 @@ class SeguroService {
             seguro.embarazada = nuevoSeguro.embarazada
             return seguroRepository.save(seguro)
         }else {
-            return null
+            throw NotFoundException("No se encontró ningún seguro que actualizar.")
         }
     }
 
@@ -86,11 +93,10 @@ class SeguroService {
                 seguroRepository.delete(seguro)
                 return seguro
             }else{
-                return null
+               throw NotFoundException("El id debe ser un numero entero.")
             }
         }catch (e: Exception){
-            e.printStackTrace()
-            return null
+            throw ValidationException("El id debe ser un numero entero.")
         }
     }
 

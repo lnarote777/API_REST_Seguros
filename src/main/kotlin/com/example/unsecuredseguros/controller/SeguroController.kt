@@ -15,8 +15,11 @@ class SeguroController {
     private lateinit var seguroService: SeguroService
 
     @GetMapping("/seguros")
-    fun getSegurosList(): List<Seguro> {
-        return seguroService.getAll()
+    fun getSegurosList(): ResponseEntity<List<Seguro>> {
+
+        val listSeguros = seguroService.getAll()
+
+        return ResponseEntity(listSeguros, HttpStatus.OK)
     }
 
     @GetMapping("/seguros/{id}")
@@ -24,7 +27,7 @@ class SeguroController {
         @PathVariable id: String
     ): ResponseEntity<Seguro>? {
 
-        if (id.isBlank() || id == "a") {
+        if (id.isBlank()) {
             throw ValidationException("El id no puede estar vacío")
         }
 
@@ -35,34 +38,39 @@ class SeguroController {
 
     @PostMapping("/seguros")
     fun insertSeguro(
-        @RequestBody seguro: Seguro?
-    ): Seguro? {
+        @RequestBody nuevoSeguro: Seguro?
+    ): ResponseEntity<Seguro>? {
 
-        if (seguro == null){
-            return null
+        if (nuevoSeguro == null){
+            throw ValidationException("No puede dejar el seguro vacío")
         }
 
-        return seguroService.insertSeguro(seguro)
+        val seguro = seguroService.insertSeguro(nuevoSeguro)
+
+        return ResponseEntity(seguro, HttpStatus.OK)
     }
 
     @PutMapping("/seguros")
     fun updateSeguro(
         @RequestBody seguro: Seguro
-    ): Seguro? {
+    ): ResponseEntity<Seguro>? {
 
+        val seguroUp = seguroService.updateSeguro(seguro)
 
-        return seguroService.updateSeguro(seguro)
+        return ResponseEntity(seguroUp, HttpStatus.OK)
     }
 
     @DeleteMapping("/seguros/{id}")
     fun deleteSeguroById(
         @PathVariable id: String
-    ): Seguro?{
+    ): ResponseEntity<Seguro>?{
 
-        if (id.isEmpty()){
-            return null
+        if (id.isBlank()) {
+            throw ValidationException("El id no puede estar vacío")
         }
 
-        return seguroService.deleteById(id)
+        val seguro = seguroService.deleteById(id)
+
+        return ResponseEntity(seguro, HttpStatus.OK)
     }
 }
