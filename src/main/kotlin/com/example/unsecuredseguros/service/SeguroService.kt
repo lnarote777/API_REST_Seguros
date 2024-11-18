@@ -1,5 +1,7 @@
 package com.example.unsecuredseguros.service
 
+import com.example.unsecuredseguros.exception.NotFoundException
+import com.example.unsecuredseguros.exception.ValidationException
 import com.example.unsecuredseguros.model.Seguro
 import com.example.unsecuredseguros.repository.SeguroRepository
 import org.springframework.beans.factory.annotation.Autowired
@@ -42,11 +44,16 @@ class SeguroService {
         try {
             idInt = seguroId.toInt()
         }catch (e: Exception){
-            e.printStackTrace()
-            return null
+            throw ValidationException("El id debe ser un numero entero.")
         }
 
-        return seguroRepository.findByIdOrNull(idInt)
+        val seguro = seguroRepository.findByIdOrNull(idInt)
+
+        if (seguro != null) {
+            return seguro
+        }else{
+            throw NotFoundException("El seguro con id $idInt no ha sido encontrado.")
+        }
     }
 
     fun getAll(): List<Seguro> {

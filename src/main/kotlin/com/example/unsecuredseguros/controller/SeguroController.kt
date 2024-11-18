@@ -1,8 +1,11 @@
 package com.example.unsecuredseguros.controller
 
+import com.example.unsecuredseguros.exception.ValidationException
 import com.example.unsecuredseguros.model.Seguro
 import com.example.unsecuredseguros.service.SeguroService
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -19,13 +22,15 @@ class SeguroController {
     @GetMapping("/seguros/{id}")
     fun getSeguroById(
         @PathVariable id: String
-    ): Seguro? {
+    ): ResponseEntity<Seguro>? {
 
-        if (id.isEmpty()){
-            return null
+        if (id.isBlank() || id == "a") {
+            throw ValidationException("El id no puede estar vacío")
         }
 
-        return seguroService.getById(id)
+        val seguro = seguroService.getById(id)
+
+        return ResponseEntity(seguro, HttpStatus.OK)
     }
 
     @PostMapping("/seguros")
